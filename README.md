@@ -48,3 +48,7 @@ In conclusion, my benchmarking and testing of Typesense revealed that it is a po
 - python: typesense==0.15.1
 - CPU: `Intel i7 13700k with power limit @ 105W`
 - Environment: Ubuntu@WSL2
+
+## Conclusion
+Typesense is a fast and lightweight tool for managing data produced by pattern generators (eg doc2vec, facial recognition etc.).
+Even with millions of entries, the time needed for search and insert are low and acceptable for most of the use cases.
