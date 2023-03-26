@@ -23,7 +23,7 @@ def add_faces(client: typesense.Client, n_samples=100):
         client.collections["faces"].documents.create(face_document)
 
 
-def connect_to_client(url: str = "localhost", port: int = 8108, api_key: str = "xyz"):
+def connect_to_client(url: str = "localhost", port: int = 8108, api_key: str = "xyz") -> typesense.Client:
     client = typesense.Client({
         'api_key': api_key,
         'nodes': [{
@@ -37,7 +37,7 @@ def connect_to_client(url: str = "localhost", port: int = 8108, api_key: str = "
     return client
 
 
-def create_schema(client):
+def create_schema(client: typesense.Client):
     print("Create collection")
     schema = {
         'name': 'faces',
@@ -68,21 +68,23 @@ def create_schema(client):
         print("Collection already exists. Skipping...")
 
 
-def search_faces(client: typesense.Client):
-    common_search_params = {"exclude_fields": "embedding", "per_page" : 100}
+def search_faces(client: typesense.Client) -> list:
+    common_search_params = {"per_page": 10}  # "exclude_fields": "embedding",
     results = []
     try:
         res = client.multi_search.perform(
             SEARCH_REQUESTS, common_search_params)
+
+        # Perform postprocessing
         for doc in res["results"][0]["hits"]:
-            if doc["vector_distance"] > 0.6:
+            if doc["vector_distance"] < 1 - 0.2:
                 results.append(doc["document"])
     except typesense.exceptions.ObjectNotFound:
         pass
     return results
 
 
-def benchmark_typesense(n_iterations=500):
+def benchmark_typesense(n_iterations: int = 500):
     client = connect_to_client()
 
     client.collections['faces'].delete()
@@ -116,4 +118,4 @@ def benchmark_typesense(n_iterations=500):
 
 
 if __name__ == "__main__":
-    benchmark_typesense()
+    benchmark_typesense(n_iterations=1500)
